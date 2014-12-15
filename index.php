@@ -1,24 +1,37 @@
+<?php
+//$calendar = $_REQUEST['calendar'];
+$calendar = 217141;
+?>
 <html>
 	<head>
 		<meta charset="utf-8">
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<!--<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">-->
-
-		<script src="js/bootstrap-3.1.1/js/bootstrap.min.js"></script>
-		<link href="js/bootstrap-3.1.1/css/bootstrap.min.css" rel="stylesheet">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap/js/bootstrap.min.js"></script>
+		<link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link href="js/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		<script>
 			var countCash = 0, countBonus = 0,countCredit = 0,countDebit = 0,countCheque = 0,countWarranty = 0;
 			var paymentArray = [];
 
 			$(document).ready(function() {
+				var calendar = '<?php echo $calendar; ?>';
+				detailCalendar(calendar);
 				$('#paymentSelect a').click(function (e) {
 					e.preventDefault()
 					$(this).tab('show')
 				});
 			});
-
+			function detailCalendar (calendar) {
+				var html = '';
+				$.post('phps/detailCalendar.php', {calendar: calendar}, function(data, textStatus, xhr) {
+					html += '<td>'+data.paciente+'</td>';
+					html += '<td>'+data.date+'</td>';
+					html += '<td>'+data.hour+'</td>';
+					html += '<td><button type="button" class="btn btn-danger" data-toggle="popover" title="Examenes y Convenios" data-content="Examenes...">Examenes/Convenios</button></td>';
+					$('#detail').html(html);
+				});
+				//$('#detail').html();
+			}
 			function insertPayment(type){
 				var detail='';
 				var closeButton = '<button type="button" class="close" onclick="deletePayment(this)" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
@@ -124,8 +137,31 @@
 	<body>
 		<div class="container">
 			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<div class="panel panel-info">
+						  <div class="panel-heading">
+								<h3 class="panel-title">Datos de la Atención</h3>
+						  </div>
+						  <div class="panel-body">
+								<table class="table table-striped">
+									<thead>
+										<tr>
+											<th>Paciente</th>
+											<th>Fecha</th>
+											<th>Hora</th>
+											<th>Examen/Convenio</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr id="detail">
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+						  </div>
+					</div>
+				</div>
 				<div class="col-md-9">
-
 					<div class="panel panel-primary">
 						<div class="panel-heading ">Información de Pago</div>
 						<div class="panel-body">
