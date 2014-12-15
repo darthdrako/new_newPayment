@@ -9,7 +9,8 @@ $row = pg_fetch_array($result, null, PGSQL_ASSOC);
 $detail = array(
     'paciente' => $row['paciente'],
     'date' => $row['date'],
-    'hour' => $row['hour']
+    'hour' => $row['hour'],
+    'pay' => 5000 //Abono ya realizado, ficticio de momento
 );
 echo json_encode($detail);
 ?>

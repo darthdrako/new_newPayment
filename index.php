@@ -2,6 +2,7 @@
 
 //$calendar = $_REQUEST['calendar'];
 $calendar = 217141;
+$totalAgreements = 22000;
 ?>
 
 <html>
@@ -14,9 +15,10 @@ $calendar = 217141;
 		<script>
 			var countCash = 0, countBonus = 0,countCredit = 0,countDebit = 0,countCheque = 0,countWarranty = 0;
 			var paymentArray = [];
+			var calendar = '<?php echo $calendar; ?>';
 
 			$(document).ready(function() {
-				var calendar = '<?php echo $calendar; ?>';
+				
 				detailCalendar(calendar);
 				$('#paymentSelect a').click(function (e) {
 					e.preventDefault()
@@ -28,20 +30,24 @@ $calendar = 217141;
 				});
 
 			});
+
 			function detailCalendar (calendar) {
 				var html = '';
+				var totalAgreements = '<?php echo $totalAgreements; ?>';
 				$.post('phps/detailCalendar.php', {calendar: calendar}, function(data, textStatus, xhr) {
 					html += '<td>'+data.paciente+'</td>';
 					html += '<td>'+data.date+'</td>';
 					html += '<td>'+data.hour+'</td>';
 					html += '<td><button type="button" class="btn btn-danger" data-toggle="popover" title="Examenes y Convenios" data-content="Examenes...">Examenes/Convenios</button></td>';
+					html += '<td id="toPay">'+totalAgreements+'</td>';
 					$('#detail').html(html);
+					$('#abonoTotal').html(data.pay);
 				});
-				//$('#detail').html();
 			}
+
 			function insertPayment(type){
 				var detail='';
-				var closeButton = '<button type="button" class="close" onclick="deletePayment(this)" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+				var closeButton = '<button type="button" class="close" onclick="deletePayment(this,\''+type+'\')" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
 				if(type=="cash"){
 					if($("#cashValue").val()!='' && $("#cashTicket").val()!=''){
 						detail='<div id="cash-'+countCash+'" class="alert alert-success alert-dismissible fade in" role="alert">'+closeButton+'</button><strong>Efectivo</strong><br/> Boleta: '+$("#cashTicket").val()+', Valor: '+$("#cashValue").val()+'</div>';
@@ -50,6 +56,10 @@ $calendar = 217141;
 						calculate();
 						$("#cashValue").val(''); 
 						$("#cashTicket").val(''); 
+						$("#cashValue").prop("disabled",true);
+						$("#cashTicket").prop("disabled",true);
+						$("#cashButton").prop("disabled",true);
+
 					}else{
 						/*var msg = 'Debe ingresar:';
 						if($("#cashTicket").val()=='') msg+='<br/>- Nº Boleta';
@@ -127,7 +137,12 @@ $calendar = 217141;
 				$("#paymentDetail").append(detail);
 			}
 
-			function deletePayment(payment){
+			function deletePayment(payment,type){
+				if(type=='cash'){
+					$("#cashValue").removeAttr('disabled');
+					$("#cashTicket").removeAttr('disabled');
+					$("#cashButton").removeAttr('disabled');
+				}
 				var paymentId = $(payment).parent().attr('id').split('-');
 				for(i=0;i<paymentArray.length;i++){
 					if(paymentArray[i].type==paymentId[0] && paymentArray[i].id==paymentId[1]){
@@ -170,17 +185,33 @@ $calendar = 217141;
 					$("#warrantyTotal").html(0);
 					$("#total").html(0);
 				}
+
 			}
 
 			function savePayment(){
-				if(paymentArray.length>0){
-					for(i=0;i<paymentArray.length;i++){
-						console.log(paymentArray[i]);
-
+				var exams = '';
+				var ticket = '';
+				var ticketValue = '';
+				for(i=0;i<paymentArray.length;i++){
+					console.log(paymentArray[i]);
+					if(paymentArray[i].type=='cash'){
+						ticket=paymentArray[i].ticket;
+						ticketValue=paymentArray[i].value;
 					}
+					
+				}
+				/*if($("#toPay").html()==$("#total").html()){
+					$.post('phps/savePayment.php', {calendar: calendar, exams: exams, agreements: agreements}, function(data, textStatus, xhr) {
+						if(paymentArray.length>0){
+							for(i=0;i<paymentArray.length;i++){
+																
+							}
+						}
+					});	
+					alert("Pagando...");
 				}else{
 					alert("Epa! Paga poh', gilculeco");
-				}
+				}*/
 			}
 
 
@@ -212,6 +243,7 @@ $calendar = 217141;
 											<th>Fecha</th>
 											<th>Hora</th>
 											<th>Examen/Convenio</th>
+											<th>Total a Pagar</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -223,7 +255,7 @@ $calendar = 217141;
 						  </div>
 					</div>
 				</div>
-				<div class="col-md-9">
+				<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
 					<div class="panel panel-primary">
 						<div class="panel-heading ">Información de Pago</div>
 						<div class="panel-body">
@@ -240,21 +272,21 @@ $calendar = 217141;
 							<div id="myTabContent" class="tab-content">
 								<div role="tabpanel" class="tab-pane fade in active" id="cash" aria-labelledby="cash-tab">
 									<br/>		
-									<div class="row" >
-										<div class="col-md-5">
+									<div id="cashContent" class="row" >
+										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 											<div class="input-group">
 												<span class="input-group-addon">Nº Boleta</span>
 												<input id="cashTicket" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-5">
+										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="cashValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-2">
-											<button type="button" class="btn btn-success" onclick="insertPayment('cash');">Aceptar</button>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+											<button id="cashButton" type="button" class="btn btn-success" onclick="insertPayment('cash');">Aceptar</button>
 										</div>
 									</div>
 					        	</div>
@@ -262,25 +294,25 @@ $calendar = 217141;
 					        	<div role="tabpanel" class="tab-pane fade in" id="bonus" aria-labelledby="bonus-tab">
 					        		<br/>
 									<div class="row" >
-										<div class="col-md-4">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 											<div class="input-group">
 												<span class="input-group-addon">Nº Bono</span>
 												<input id="bonusTicket" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="bonusValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group">
 												<span class="input-group-addon">Copago $</span>
 												<input id="bonusValueCo" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-1">
+										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('bonus');">Aceptar</button>
 										</div>
 									</div>
@@ -290,25 +322,25 @@ $calendar = 217141;
 					        	<div role="tabpanel" class="tab-pane fade in" id="credit" aria-labelledby="credit-tab">
 					        		<br/>
 									<div class="row" >
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group">
 												<span class="input-group-addon">Emisor</span>
 												<input id="creditUser" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-4">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 											<div class="input-group">
 												<span class="input-group-addon">Nº Transacción</span>
 												<input id="creditTicket" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="creditValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-1">
+										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('credit');">Aceptar</button>
 										</div>
 									</div>
@@ -318,25 +350,25 @@ $calendar = 217141;
 					        	<div role="tabpanel" class="tab-pane fade in" id="debit" aria-labelledby="debit-tab">
 					        		<br/>
 									<div class="row" >
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group">
 												<span class="input-group-addon">Emisor</span>
 												<input id="debitUser" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-4">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 											<div class="input-group">
 												<span class="input-group-addon">Nº Transacción</span>
 												<input id="debitTicket" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="debitValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-1">
+										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('debit');">Aceptar</button>
 										</div>
 										<div class="col-md-2"></div>
@@ -347,25 +379,25 @@ $calendar = 217141;
 					        	<div role="tabpanel" class="tab-pane fade in" id="cheque" aria-labelledby="cheque-tab">
 					        		<br/>
 									<div class="row" >
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group">
 												<span class="input-group-addon">Emisor</span>
 												<input id="chequeUser" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-4">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 											<div class="input-group">
 												<span class="input-group-addon">Nº Cheque</span>
 												<input id="chequeTicket" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="chequeValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-1">
+										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('cheque');">Aceptar</button>
 										</div>
 										<div class="col-md-2"></div>
@@ -376,25 +408,25 @@ $calendar = 217141;
 					        	<div role="tabpanel" class="tab-pane fade in" id="warranty" aria-labelledby="warranty-tab">
 					        		<br/>
 									<div class="row" >
-										<div class="col-md-4">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 											<div class="input-group">
 												<span class="input-group-addon">Observaciones</span>
 												<input id="warrantyObservation" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="warrantyValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 											<div class="input-group">
 												<span class="input-group-addon">Fecha de Pago</span>
 												<input id="warrantyDate" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-md-1">
+										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('warranty');">Aceptar</button>
 										</div>
 										<div class="col-md-5"></div>
@@ -415,7 +447,7 @@ $calendar = 217141;
 					</div>
 				</div>
 				<!--RESUMEN DE PAGO-->
-				<div class="col-md-3">
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 					<div class="panel panel-primary">
 						<div class="panel-heading ">Resumen:</div>
 						<div class="panel-body">
@@ -453,7 +485,7 @@ $calendar = 217141;
 								</tr>
 								<tr class="info">
 									<th>TOTAL</th>
-									<th id="total">0</th>
+									<th id="total" data-toggle="tooltip" title="El monto ingresado es mayor al total a Pagar">0</th>
 								</tr>
 								<tr>
 									<td colspan="2"></td>
@@ -478,6 +510,7 @@ $calendar = 217141;
 				</div>
 			</div>
 		</div>
+
 		<div id="modalEmpty" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
