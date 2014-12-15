@@ -34,14 +34,23 @@ $totalAgreements = 22000;
 			function detailCalendar (calendar) {
 				var html = '';
 				var totalAgreements = '<?php echo $totalAgreements; ?>';
+				var popoverTable = '';
+
 				$.post('phps/detailCalendar.php', {calendar: calendar}, function(data, textStatus, xhr) {
+					console.log(data.exams);
+					for (var i = 0; i < data.exams.length; i++) {
+						if( i == 0 ) popoverTable += ''+(i+1)+'.- '+data.exams[i].name+'';
+						else popoverTable += '<br>'+(i+1)+'.- '+data.exams[i].name+'';
+					};
 					html += '<td>'+data.paciente+'</td>';
 					html += '<td>'+data.date+'</td>';
 					html += '<td>'+data.hour+'</td>';
-					html += '<td><button type="button" class="btn btn-danger" data-toggle="popover" title="Examenes y Convenios" data-content="Examenes...">Examenes/Convenios</button></td>';
+					html += '<td><button type="button" class="btn btn-md btn-danger" data-placement="auto top" data-trigger="hover" data-toggle="popover" data-html="true" title="Examenes y Convenios" data-content="'+popoverTable+'">Examenes/Convenios</button></td>';
 					html += '<td id="toPay">'+totalAgreements+'</td>';
 					$('#detail').html(html);
+					
 					$('#abonoTotal').html(data.pay);
+					$('[data-toggle="popover"]').popover()
 				});
 			}
 
@@ -232,27 +241,24 @@ $totalAgreements = 22000;
 			<div class="row">
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 					<div class="panel panel-info">
-						  <div class="panel-heading">
+							<div class="panel-heading">
 								<h3 class="panel-title">Datos de la Atención</h3>
-						  </div>
-						  <div class="panel-body">
-								<table class="table table-striped">
-									<thead>
-										<tr>
-											<th>Paciente</th>
-											<th>Fecha</th>
-											<th>Hora</th>
-											<th>Examen/Convenio</th>
-											<th>Total a Pagar</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr id="detail">
-											<td></td>
-										</tr>
-									</tbody>
-								</table>
-						  </div>
+							</div>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Paciente</th>
+										<th>Fecha</th>
+										<th>Hora</th>
+										<th>Examen/Convenio</th>
+										<th>Total a Pagar</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr id="detail">
+									</tr>
+								</tbody>
+							</table>
 					</div>
 				</div>
 				<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
