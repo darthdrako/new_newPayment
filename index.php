@@ -197,30 +197,37 @@ $totalAgreements = 22000;
 
 			}
 
-			function savePayment(){
-				var exams = '';
+			function savePayment(){//EN DESARROLLO
+				var ticketValue = 0;
 				var ticket = '';
-				var ticketValue = '';
-				for(i=0;i<paymentArray.length;i++){
-					console.log(paymentArray[i]);
-					if(paymentArray[i].type=='cash'){
-						ticket=paymentArray[i].ticket;
-						ticketValue=paymentArray[i].value;
-					}
+						
+				if($("#toPay").html()==$("#total").html()){
 					
-				}
-				/*if($("#toPay").html()==$("#total").html()){
-					$.post('phps/savePayment.php', {calendar: calendar, exams: exams, agreements: agreements}, function(data, textStatus, xhr) {
-						if(paymentArray.length>0){
-							for(i=0;i<paymentArray.length;i++){
-																
+					if(paymentArray.length>0){
+						for(i=0;i<paymentArray.length;i++){
+							if(paymentArray[i].type=='cash'){
+								ticket=paymentArray[i].ticket;
+								ticketValue=paymentArray[i].value;
 							}
 						}
-					});	
+						$.post('phps/savePayment.php', {calendar: calendar, cash: ticketValue, code_ticket: ticket}, function(data, textStatus, xhr) {
+							console.log(data);
+						});
+
+						for(j=0;j<paymentArray.length;j++){
+							if(paymentArray[j].type!='cash'){
+
+								$.post('phps/saveAnother.php', paymentArray[j] /*agregar calendar*/, function(data, textStatus, xhr) {
+									console.log(data);
+								});
+							}
+						}
+					}
+
 					alert("Pagando...");
 				}else{
 					alert("Epa! Paga poh', gilculeco");
-				}*/
+				}
 			}
 
 
