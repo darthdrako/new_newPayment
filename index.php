@@ -21,6 +21,7 @@ $totalAgreements = 22000;
 				
 				detailCalendar(calendar);
 				$('#paymentSelect a').click(function (e) {
+					resetClass();
 					e.preventDefault()
 					$(this).tab('show')
 				});
@@ -28,7 +29,10 @@ $totalAgreements = 22000;
 				$(".onlyNumeric").keypress(function(e) {
 				 	validateNumber(e);
 				});
-
+				$("#myTabContent :input").keypress(function(event) {
+					$(this).parent().removeClass('has-error has-feedback');
+					//resetClass();
+				});
 			});
 
 			function detailCalendar (calendar) {
@@ -37,7 +41,6 @@ $totalAgreements = 22000;
 				var popoverTable = '';
 
 				$.post('phps/detailCalendar.php', {calendar: calendar}, function(data, textStatus, xhr) {
-					console.log(data.exams);
 					for (var i = 0; i < data.exams.length; i++) {
 						if( i == 0 ) popoverTable += ''+(i+1)+'.- '+data.exams[i].name+'';
 						else popoverTable += '<br>'+(i+1)+'.- '+data.exams[i].name+'';
@@ -53,7 +56,25 @@ $totalAgreements = 22000;
 					$('[data-toggle="popover"]').popover()
 				});
 			}
-
+			function resetClass() {
+				$('#cashTicketDiv').removeClass('has-error has-feedback');
+				$('#cashValueDiv').removeClass('has-error has-feedback');
+				$('#bonusTicketDiv').removeClass('has-error has-feedback');
+				$('#bonusValueDiv').removeClass('has-error has-feedback');
+				$('#bonusValueCoDiv').removeClass('has-error has-feedback');
+				$('#creditTicketDiv').removeClass('has-error has-feedback');
+				$('#creditValueDiv').removeClass('has-error has-feedback');
+				$('#creditUserDiv').removeClass('has-error has-feedback');
+				$('#chequeTicketDiv').removeClass('has-error has-feedback');
+				$('#chequeValueDiv').removeClass('has-error has-feedback');
+				$('#chequeUserDiv').removeClass('has-error has-feedback');
+				$('#creditTicketDiv').removeClass('has-error has-feedback');
+				$('#creditValueDiv').removeClass('has-error has-feedback');
+				$('#creditUserDiv').removeClass('has-error has-feedback');
+				$('#debitTicketDiv').removeClass('has-error has-feedback');
+				$('#debitValueDiv').removeClass('has-error has-feedback');
+				$('#debitUserDiv').removeClass('has-error has-feedback');
+			}
 			function insertPayment(type){
 				var detail='';
 				var closeButton = '<button type="button" class="close" onclick="deletePayment(this,\''+type+'\')" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
@@ -70,11 +91,13 @@ $totalAgreements = 22000;
 						$("#cashButton").prop("disabled",true);
 
 					}else{
-						/*var msg = 'Debe ingresar:';
-						if($("#cashTicket").val()=='') msg+='<br/>- Nº Boleta';
-						if($("#cashValue").val()=='') msg+='<br/>- Monto';
-						$("#modalMsg").html(msg);*/
-						$("#modalEmpty").modal('show');
+						/*$.each($("#cash :input"), function(index, val) {
+							//has-error has-feedback
+							 console.log(val);
+						});*/
+						if($("#cashTicket").val()=='') $('#cashTicketDiv').addClass('has-error has-feedback');
+						if($("#cashValue").val()=='') $('#cashValueDiv').addClass('has-error has-feedback');
+						//$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="bonus"){
@@ -87,7 +110,10 @@ $totalAgreements = 22000;
 						$("#bonusValue").val(''); 
 						$("#bonusValueCo").val(''); 
 					}else{
-						$("#modalEmpty").modal('show');
+						if($("#bonusTicket").val()=='') $('#bonusTicketDiv').addClass('has-error has-feedback');
+						if($("#bonusValue").val()=='') $('#bonusValueDiv').addClass('has-error has-feedback');
+						if($("#bonusValueCo").val()=='') $('#bonusValueCoDiv').addClass('has-error has-feedback');
+						//$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="credit"){
@@ -100,7 +126,9 @@ $totalAgreements = 22000;
 						$("#creditValue").val(''); 
 						$("#creditUser").val(''); 
 					}else{
-						$("#modalEmpty").modal('show');
+						if($("#creditTicket").val()=='') $('#creditTicketDiv').addClass('has-error has-feedback');
+						if($("#creditValue").val()=='') $('#creditValueDiv').addClass('has-error has-feedback');
+						if($("#creditUser").val()=='') $('#creditUserDiv').addClass('has-error has-feedback');
 					}
 
 				}else if(type=="debit"){
@@ -113,7 +141,9 @@ $totalAgreements = 22000;
 						$("#debitValue").val(''); 
 						$("#debitUser").val(''); 
 					}else{
-						$("#modalEmpty").modal('show');
+						if($("#debitTicket").val()=='') $('#debitTicketDiv').addClass('has-error has-feedback');
+						if($("#debitValue").val()=='') $('#debitValueDiv').addClass('has-error has-feedback');
+						if($("#debitUser").val()=='') $('#debitUserDiv').addClass('has-error has-feedback');
 					}
 
 				}else if(type=="cheque"){
@@ -126,7 +156,9 @@ $totalAgreements = 22000;
 						$("#chequeValue").val('');  
 						$("#chequeUser").val(''); 
 					}else{
-						$("#modalEmpty").modal('show');
+						if($("#chequeTicket").val()=='') $('#chequeTicketDiv').addClass('has-error has-feedback');
+						if($("#chequeValue").val()=='') $('#chequeValueDiv').addClass('has-error has-feedback');
+						if($("#chequeUser").val()=='') $('#chequeUserDiv').addClass('has-error has-feedback');
 					}
 
 				}else if(type=="warranty"){
@@ -287,13 +319,13 @@ $totalAgreements = 22000;
 									<br/>		
 									<div id="cashContent" class="row" >
 										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-											<div class="input-group">
+											<div id ="cashTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Boleta</span>
 												<input id="cashTicket" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-											<div class="input-group input-group-primary">
+											<div id ="cashValueDiv" class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="cashValue" type="text" class="form-control onlyNumeric">
 											</div>
@@ -308,19 +340,19 @@ $totalAgreements = 22000;
 					        		<br/>
 									<div class="row" >
 										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-											<div class="input-group">
+											<div id="bonusTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Bono</span>
 												<input id="bonusTicket" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group input-group-primary">
+											<div id="bonusValueDiv" class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="bonusValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group">
+											<div id="bonusValueCoDiv" class="input-group">
 												<span class="input-group-addon">Copago $</span>
 												<input id="bonusValueCo" type="text" class="form-control onlyNumeric">
 											</div>
@@ -336,19 +368,19 @@ $totalAgreements = 22000;
 					        		<br/>
 									<div class="row" >
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group">
+											<div id="creditUserDiv" class="input-group">
 												<span class="input-group-addon">Emisor</span>
 												<input id="creditUser" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-											<div class="input-group">
+											<div id="creditTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Transacción</span>
 												<input id="creditTicket" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group input-group-primary">
+											<div id="creditValueDiv" class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="creditValue" type="text" class="form-control onlyNumeric">
 											</div>
@@ -364,19 +396,19 @@ $totalAgreements = 22000;
 					        		<br/>
 									<div class="row" >
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group">
+											<div id="debitUserDiv" class="input-group">
 												<span class="input-group-addon">Emisor</span>
 												<input id="debitUser" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-											<div class="input-group">
+											<div id="debitTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Transacción</span>
 												<input id="debitTicket" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group input-group-primary">
+											<div id="debitValueDiv" class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="debitValue" type="text" class="form-control onlyNumeric">
 											</div>
@@ -393,19 +425,19 @@ $totalAgreements = 22000;
 					        		<br/>
 									<div class="row" >
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group">
+											<div id="chequeUserDiv" class="input-group">
 												<span class="input-group-addon">Emisor</span>
 												<input id="chequeUser" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-											<div class="input-group">
+											<div id="chequeTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Cheque</span>
 												<input id="chequeTicket" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group input-group-primary">
+											<div id="chequeValueDiv" class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="chequeValue" type="text" class="form-control onlyNumeric">
 											</div>
