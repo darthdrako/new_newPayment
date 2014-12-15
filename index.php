@@ -1,3 +1,7 @@
+<?php
+
+?>
+
 <html>
 	<head>
 		<meta charset="utf-8">
@@ -17,6 +21,11 @@
 					e.preventDefault()
 					$(this).tab('show')
 				});
+				
+				$(".onlyNumeric").keypress(function(e) {
+				 	validateNumber(e);
+				});
+
 			});
 
 			function insertPayment(type){
@@ -28,6 +37,14 @@
 						paymentArray.push({type:"cash", id: countCash, ticket: $("#cashTicket").val(), value: $("#cashValue").val()});
 						countCash++;
 						calculate();
+						$("#cashValue").val(''); 
+						$("#cashTicket").val(''); 
+					}else{
+						/*var msg = 'Debe ingresar:';
+						if($("#cashTicket").val()=='') msg+='<br/>- Nº Boleta';
+						if($("#cashValue").val()=='') msg+='<br/>- Monto';
+						$("#modalMsg").html(msg);*/
+						$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="bonus"){
@@ -36,6 +53,11 @@
 						paymentArray.push({type:"bonus", id: countBonus, ticket: $("#bonusTicket").val(), value: $("#bonusValue").val(), covalue: $("#bonusValueCo").val()});
 						countBonus++;
 						calculate();
+						$("#bonusTicket").val(''); 
+						$("#bonusValue").val(''); 
+						$("#bonusValueCo").val(''); 
+					}else{
+						$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="credit"){
@@ -44,6 +66,11 @@
 						paymentArray.push({type:"credit", id: countCredit, ticket: $("#creditTicket").val(), value: $("#creditValue").val(), user: $("#creditUser").val()});
 						countCredit++;
 						calculate();
+						$("#creditTicket").val(''); 
+						$("#creditValue").val(''); 
+						$("#creditUser").val(''); 
+					}else{
+						$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="debit"){
@@ -52,6 +79,11 @@
 						paymentArray.push({type:"debit", id: countDebit, ticket: $("#debitTicket").val(), value: $("#debitValue").val(), user: $("#debitUser").val()});
 						countDebit++;
 						calculate();
+						$("#debitTicket").val(''); 
+						$("#debitValue").val(''); 
+						$("#debitUser").val(''); 
+					}else{
+						$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="cheque"){
@@ -60,6 +92,11 @@
 						paymentArray.push({type:"cheque", id: countCheque, ticket: $("#chequeTicket").val(), value: $("#chequeValue").val(), user: $("#chequeUser").val()});
 						countCheque++;
 						calculate();
+						$("#chequeTicket").val(''); 
+						$("#chequeValue").val('');  
+						$("#chequeUser").val(''); 
+					}else{
+						$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="warranty"){
@@ -68,6 +105,11 @@
 						paymentArray.push({type:"warranty", id: countWarranty, observation: $("#warrantyObservation").val(), value: $("#warrantyValue").val(), date: $("#warrantyDate").val()});
 						countWarranty++;
 						calculate();
+						$("#warrantyObservation").val(''); 
+						$("#warrantyValue").val(''); 
+						$("#warrantyDate").val(''); 
+					}else{
+						$("#modalEmpty").modal('show');
 					}
 				}
 
@@ -119,6 +161,28 @@
 				}
 			}
 
+			function savePayment(){
+				if(paymentArray.length>0){
+					for(i=0;i<paymentArray.length;i++){
+						console.log(paymentArray[i]);
+
+					}
+				}else{
+					alert("Epa! Paga poh', gilculeco");
+				}
+			}
+
+
+			function validateNumber(evt) {
+				var theEvent = evt || window.event;
+				var key = theEvent.keyCode || theEvent.which;
+				key = String.fromCharCode( key );
+				var regex = /[0-9]|\./;
+				if( !regex.test(key) ) {
+					theEvent.returnValue = false;
+					if(theEvent.preventDefault) theEvent.preventDefault();
+				}
+			}
 		</script>
 	</head>
 	<body>
@@ -152,7 +216,7 @@
 										<div class="col-md-5">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
-												<input id="cashValue" type="text" class="form-control">
+												<input id="cashValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-2">
@@ -173,13 +237,13 @@
 										<div class="col-md-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
-												<input id="bonusValue" type="text" class="form-control">
+												<input id="bonusValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-3">
 											<div class="input-group">
 												<span class="input-group-addon">Copago $</span>
-												<input id="bonusValueCo" type="text" class="form-control">
+												<input id="bonusValueCo" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-1">
@@ -207,7 +271,7 @@
 										<div class="col-md-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
-												<input id="creditValue" type="text" class="form-control">
+												<input id="creditValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-1">
@@ -235,7 +299,7 @@
 										<div class="col-md-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
-												<input id="debitValue" type="text" class="form-control">
+												<input id="debitValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-1">
@@ -264,7 +328,7 @@
 										<div class="col-md-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
-												<input id="chequeValue" type="text" class="form-control">
+												<input id="chequeValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-1">
@@ -287,7 +351,7 @@
 										<div class="col-md-3">
 											<div class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
-												<input id="warrantyValue" type="text" class="form-control">
+												<input id="warrantyValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
 										<div class="col-md-3">
@@ -305,28 +369,6 @@
 						      
 						    </div>
 							<br/>
-
-							
-
-
-							<div id="bonus" class="row" style="display: none;">
-								<div class="col-md-3">
-									<div class="input-group input-group-primary">
-										<span class="input-group-addon">$</span>
-										<input type="text" class="form-control">
-									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="input-group">
-										<span class="input-group-addon">Nº de Bono</span>
-										<input type="text" class="form-control">
-									</div>
-								</div>
-								<div class="col-md-1">
-									<button type="button" class="btn btn-success">Aceptar</button>
-								</div>
-								<div class="col-md-5"></div>
-							</div>
 
 						</div>
 					</div>
@@ -379,13 +421,37 @@
 									<th>TOTAL</th>
 									<th id="total">0</th>
 								</tr>
+								<tr>
+									<td colspan="2"></td>
+								</tr>
+								<tr class='warning'>
+									<td>Monto Abonado</td>
+									<td id="abonoTotal">0</td>
+								</tr>
+								<tr class='warning'>
+									<td>
+										<button class="btn btn-success">+</button>
+										<button class="btn btn-danger">-</button>
+									</td>
+									<td id="abonoTotal">
+										<input type="text" class="form-control onlyNumeric" style="width: 70px;"></input>
+									</td>
+								</tr>
 							</table>
 						</div>
 					</div>
-					<button type="button" class="btn btn-success btn-lg" onclick="alert('Pagando...');" style="height: 15%;width: 100%;">Realizar Pago</button>
+					<button type="button" class="btn btn-success btn-lg" onclick="savePayment();" style="height: 15%;width: 100%;">Realizar Pago</button>
 				</div>
 			</div>
 		</div>
-
+		<div id="modalEmpty" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="row">
+						<h4 id="modalMsg" class="text-center">Faltan datos a ingresar<h4>
+					</div>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
