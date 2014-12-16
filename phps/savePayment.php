@@ -2,7 +2,7 @@
 session_start();
 $calendar = $_REQUEST['calendar'];
 $cash = $_REQUEST['cash'];
-if(isset($_REQUEST['code_ticket'])){
+if($_REQUEST['code_ticket']!=''){
 	$code = ',code_ticket';
 	$code_ticket = ','.$_REQUEST['code_ticket'];
 }else{

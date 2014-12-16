@@ -11,6 +11,9 @@ $totalAgreements = 22000;
 		<script src="js/jquery.min.js"></script>
 		<script src="js/bootstrap/js/bootstrap.min.js"></script>
 		<link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<script src="js/datepicker/js/bootstrap-datepicker.js"></script>
+		<script type="text/javascript" src="js/datepicker/js/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+		<link href="js/datepicker/css/datepicker.css" rel="stylesheet">
 		<link href="js/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		<script>
 			var countCash = 0, countBonus = 0,countCredit = 0,countDebit = 0,countCheque = 0,countWarranty = 0;
@@ -33,6 +36,21 @@ $totalAgreements = 22000;
 					$(this).parent().removeClass('has-error has-feedback');
 					//resetClass();
 				});
+
+				//Seteo de los calendarios
+				$('.datepicker').datepicker({
+				    format: 'yyyy/mm/dd',
+				    language: 'es',
+				    todayHighlight: true,
+				    todayBtn: true
+				});
+				var today = new Date();
+				var todayDate = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate();
+				$(".datepicker").datepicker('update', todayDate);
+				$(".datepicker").keypress(function(e) {
+				 	return false;
+				});
+
 			});
 
 			function detailCalendar (calendar) {
@@ -248,7 +266,7 @@ $totalAgreements = 22000;
 
 						for(j=0;j<paymentArray.length;j++){
 							if(paymentArray[j].type!='cash'){
-
+								paymentArray[j].calendar=calendar;
 								$.post('phps/saveAnother.php', paymentArray[j] /*agregar calendar*/, function(data, textStatus, xhr) {
 									console.log(data);
 								});
@@ -317,7 +335,7 @@ $totalAgreements = 22000;
 							<div id="myTabContent" class="tab-content">
 								<div role="tabpanel" class="tab-pane fade in active" id="cash" aria-labelledby="cash-tab">
 									<br/>		
-									<div id="cashContent" class="row" >
+									<div class="row" >
 										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 											<div id ="cashTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Boleta</span>
@@ -334,6 +352,7 @@ $totalAgreements = 22000;
 											<button id="cashButton" type="button" class="btn btn-success" onclick="insertPayment('cash');">Aceptar</button>
 										</div>
 									</div>
+
 					        	</div>
 					        	<!--BONO-->
 					        	<div role="tabpanel" class="tab-pane fade in" id="bonus" aria-labelledby="bonus-tab">
@@ -373,7 +392,7 @@ $totalAgreements = 22000;
 												<input id="creditUser" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 											<div id="creditTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Transacción</span>
 												<input id="creditTicket" type="text" class="form-control">
@@ -383,6 +402,21 @@ $totalAgreements = 22000;
 											<div id="creditValueDiv" class="input-group input-group-primary">
 												<span class="input-group-addon">Monto $</span>
 												<input id="creditValue" type="text" class="form-control onlyNumeric">
+											</div>
+										</div>
+									</div>
+									<br/>
+									<div class="row">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<div id="creditDateDiv" class="input-group input-group-primary">
+												<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>&nbsp;Fecha</span>
+												<input id="creditDate" class="datepicker"></input>
+											</div>
+										</div>
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<div id="creditBankDiv" class="input-group input-group-primary">
+												<span class="input-group-addon">Banco</span>
+												<input id="creditBank" type="text" class="form-control">
 											</div>
 										</div>
 										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
@@ -401,7 +435,7 @@ $totalAgreements = 22000;
 												<input id="debitUser" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 											<div id="debitTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Transacción</span>
 												<input id="debitTicket" type="text" class="form-control">
@@ -413,10 +447,24 @@ $totalAgreements = 22000;
 												<input id="debitValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
+									</div>
+									<br/>
+									<div class="row">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<div id="debitDateDiv" class="input-group input-group-primary">
+												<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>&nbsp;Fecha</span>
+												<input id="debitDate" class="datepicker"></input>
+											</div>
+										</div>
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<div id="debitBankDiv" class="input-group input-group-primary">
+												<span class="input-group-addon">Banco</span>
+												<input id="debitBank" type="text" class="form-control">
+											</div>
+										</div>
 										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('debit');">Aceptar</button>
 										</div>
-										<div class="col-md-2"></div>
 									</div>
 					        	</div>
 
@@ -430,7 +478,7 @@ $totalAgreements = 22000;
 												<input id="chequeUser" type="text" class="form-control">
 											</div>
 										</div>
-										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+										<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 											<div id="chequeTicketDiv" class="input-group">
 												<span class="input-group-addon">Nº Cheque</span>
 												<input id="chequeTicket" type="text" class="form-control">
@@ -442,10 +490,24 @@ $totalAgreements = 22000;
 												<input id="chequeValue" type="text" class="form-control onlyNumeric">
 											</div>
 										</div>
+									</div>
+									<br/>
+									<div class="row">
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<div id="chequeDateDiv" class="input-group input-group-primary">
+												<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>&nbsp;Fecha</span>
+												<input id="chequeDate" class="datepicker"></input>
+											</div>
+										</div>
+										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+											<div id="chequeBankDiv" class="input-group input-group-primary">
+												<span class="input-group-addon">Banco</span>
+												<input id="chequeBank" type="text" class="form-control">
+											</div>
+										</div>
 										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 											<button type="button" class="btn btn-success" onclick="insertPayment('cheque');">Aceptar</button>
 										</div>
-										<div class="col-md-2"></div>
 									</div>
 					        	</div>
 
@@ -466,9 +528,9 @@ $totalAgreements = 22000;
 											</div>
 										</div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-											<div class="input-group">
-												<span class="input-group-addon">Fecha de Pago</span>
-												<input id="warrantyDate" type="text" class="form-control">
+											<div id="warrantyDateDiv" class="input-group input-group-primary">
+												<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>&nbsp;Fecha</span>
+												<input id="warrantyDate" class="datepicker"></input>
 											</div>
 										</div>
 										<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
@@ -532,7 +594,7 @@ $totalAgreements = 22000;
 									<th>TOTAL</th>
 									<th id="total" data-toggle="tooltip" title="El monto ingresado es mayor al total a Pagar">0</th>
 								</tr>
-								<tr>
+								<!--<tr>
 									<td colspan="2"></td>
 								</tr>
 								<tr class='warning'>
@@ -547,7 +609,7 @@ $totalAgreements = 22000;
 									<td id="abonoTotal">
 										<input type="text" class="form-control onlyNumeric" style="width: 70px;"></input>
 									</td>
-								</tr>
+								</tr>-->
 							</table>
 						</div>
 					</div>
