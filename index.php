@@ -34,7 +34,6 @@ $totalAgreements = 22000;
 				});
 				$("#myTabContent :input").keypress(function(event) {
 					$(this).parent().removeClass('has-error has-feedback');
-					//resetClass();
 				});
 
 				//Seteo de los calendarios
@@ -52,7 +51,18 @@ $totalAgreements = 22000;
 				});
 
 			});
-
+			function getObjects(obj, key, val) {
+				var objects = [];
+				for (var i in obj) {
+					if (!obj.hasOwnProperty(i)) continue;
+					if (typeof obj[i] == 'object') {
+						objects = objects.concat(getObjects(obj[i], key, val));
+					} else if (i == key && obj[key] == val) {
+						objects.push(obj);
+					}
+				}
+				return objects;
+			}
 			function detailCalendar (calendar) {
 				var html = '';
 				var totalAgreements = '<?php echo $totalAgreements; ?>';
@@ -95,11 +105,11 @@ $totalAgreements = 22000;
 			}
 			function insertPayment(type){
 				var detail='';
-				var closeButton = '<button type="button" class="close" onclick="deletePayment(this,\''+type+'\')" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+				var closeButton = '<button style="z-index:9999;" type="button" class="close" onclick="deletePayment(this,\''+type+'\')" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
 				if(type=="cash"){
 					if($("#cashValue").val()!='' && $("#cashTicket").val()!=''){
-						detail='<div id="cash-'+countCash+'" class="alert alert-success alert-dismissible fade in" role="alert">'+closeButton+'</button><strong>Efectivo</strong><br/> Boleta: '+$("#cashTicket").val()+', Valor: '+$("#cashValue").val()+'</div>';
-						paymentArray.push({type:"cash", id: countCash, ticket: $("#cashTicket").val(), value: $("#cashValue").val()});
+						detail='<div style="z-index:998;" id="cash-'+countCash+'" class="alert alert-success alert-dismissible fade in" role="alert">'+closeButton+'<strong>Efectivo</strong><br/> Boleta: '+$("#cashTicket").val()+', Valor: '+$("#cashValue").val()+'</div>';
+						paymentArray.push({type:"cash", id: countCash, alert: "cash-"+countCash, ticket: $("#cashTicket").val(), value: $("#cashValue").val()});
 						countCash++;
 						calculate();
 						$("#cashValue").val(''); 
@@ -120,8 +130,8 @@ $totalAgreements = 22000;
 
 				}else if(type=="bonus"){
 					if($("#bonusTicket").val()!='' && $("#bonusValue").val()!='' && $("#bonusValueCo").val()!=''){
-						detail='<div id="bonus-'+countBonus+'" class="alert alert-info alert-dismissible fade in" role="alert">'+closeButton+'<strong>Bono</strong><br/> Nº '+$("#bonusTicket").val()+', Valor Bono: '+$("#bonusValue").val()+', Copago: '+$("#bonusValueCo").val()+'</div>';
-						paymentArray.push({type:"bonus", id: countBonus, ticket: $("#bonusTicket").val(), value: $("#bonusValue").val(), covalue: $("#bonusValueCo").val()});
+						detail='<div id="bonus-'+countBonus+'" class="alert-payment alert alert-info alert-dismissible fade in" role="alert">'+closeButton+'<strong>Bono</strong><br/> Nº '+$("#bonusTicket").val()+', Valor Bono: '+$("#bonusValue").val()+', Copago: '+$("#bonusValueCo").val()+'</div>';
+						paymentArray.push({type:"bonus", id: countBonus, alert: "bonus-"+countBonus, ticket: $("#bonusTicket").val(), value: $("#bonusValue").val(), covalue: $("#bonusValueCo").val()});
 						countBonus++;
 						calculate();
 						$("#bonusTicket").val(''); 
@@ -136,8 +146,8 @@ $totalAgreements = 22000;
 
 				}else if(type=="credit"){
 					if($("#creditTicket").val()!='' && $("#creditValue").val()!='' && $("#creditUser").val()!=''){
-						detail='<div id="credit-'+countCredit+'" class="alert alert-info alert-dismissible fade in" role="alert">'+closeButton+'<strong>Crédito</strong><br/> Emisor: '+$("#creditUser").val()+', Nº de Transacción: '+$("#creditTicket").val()+', Valor: '+$("#creditValue").val()+'</div>';
-						paymentArray.push({type:"credit", id: countCredit, ticket: $("#creditTicket").val(), value: $("#creditValue").val(), user: $("#creditUser").val()});
+						detail='<div id="credit-'+countCredit+'" class="alert-payment alert alert-info alert-dismissible fade in" role="alert">'+closeButton+'<strong>Crédito</strong><br/> Emisor: '+$("#creditUser").val()+', Nº de Transacción: '+$("#creditTicket").val()+', Valor: '+$("#creditValue").val()+'</div>';
+						paymentArray.push({type:"credit", id: countCredit, alert: "credit-"+countCredit, ticket: $("#creditTicket").val(), value: $("#creditValue").val(), user: $("#creditUser").val()});
 						countCredit++;
 						calculate();
 						$("#creditTicket").val(''); 
@@ -151,8 +161,8 @@ $totalAgreements = 22000;
 
 				}else if(type=="debit"){
 					if($("#debitTicket").val()!='' && $("#debitValue").val()!='' && $("#debitUser").val()!=''){
-						detail='<div id="debit-'+countDebit+'" class="alert alert-warning alert-dismissible fade in" role="alert">'+closeButton+'<strong>Débito</strong><br/> Emisor: '+$("#debitUser").val()+', Nº de Transacción: '+$("#debitTicket").val()+', Valor: '+$("#debitValue").val()+'</div>';
-						paymentArray.push({type:"debit", id: countDebit, ticket: $("#debitTicket").val(), value: $("#debitValue").val(), user: $("#debitUser").val()});
+						detail='<div id="debit-'+countDebit+'" class="alert-payment alert alert-warning alert-dismissible fade in" role="alert">'+closeButton+'<strong>Débito</strong><br/> Emisor: '+$("#debitUser").val()+', Nº de Transacción: '+$("#debitTicket").val()+', Valor: '+$("#debitValue").val()+'</div>';
+						paymentArray.push({type:"debit", id: countDebit, alert: "debit-"+countDebit, ticket: $("#debitTicket").val(), value: $("#debitValue").val(), user: $("#debitUser").val()});
 						countDebit++;
 						calculate();
 						$("#debitTicket").val(''); 
@@ -166,8 +176,8 @@ $totalAgreements = 22000;
 
 				}else if(type=="cheque"){
 					if($("#chequeTicket").val()!='' && $("#chequeValue").val()!='' && $("#chequeUser").val()!=''){
-						detail='<div id="cheque-'+countCheque+'" class="alert alert-warning alert-dismissible fade in" role="alert">'+closeButton+'<strong>Cheque</strong><br/> Emisor: '+$("#chequeUser").val()+', Nº de Transacción: '+$("#chequeTicket").val()+', Valor: '+$("#chequeValue").val()+'</div>';
-						paymentArray.push({type:"cheque", id: countCheque, ticket: $("#chequeTicket").val(), value: $("#chequeValue").val(), user: $("#chequeUser").val()});
+						detail='<div id="cheque-'+countCheque+'" class="alert-payment alert alert-warning alert-dismissible fade in" role="alert">'+closeButton+'<strong>Cheque</strong><br/> Emisor: '+$("#chequeUser").val()+', Nº de Transacción: '+$("#chequeTicket").val()+', Valor: '+$("#chequeValue").val()+'</div>';
+						paymentArray.push({type:"cheque", id: countCheque, alert: "cheque-"+countCheque, ticket: $("#chequeTicket").val(), value: $("#chequeValue").val(), user: $("#chequeUser").val()});
 						countCheque++;
 						calculate();
 						$("#chequeTicket").val(''); 
@@ -181,8 +191,8 @@ $totalAgreements = 22000;
 
 				}else if(type=="warranty"){
 					if($("#warrantyObservation").val()!='' && $("#warrantyValue").val()!='' && $("#warrantyDate").val()!=''){
-						detail='<div id="warranty-'+countWarranty+'" class="alert alert-danger alert-dismissible fade in" role="alert">'+closeButton+'<strong>Garantía</strong><br/> Observaciones: '+$("#warrantyObservation").val()+', Valor: '+$("#warrantyValue").val()+', Fecha: '+$("#warrantyDate").val()+'</div>';
-						paymentArray.push({type:"warranty", id: countWarranty, observation: $("#warrantyObservation").val(), value: $("#warrantyValue").val(), date: $("#warrantyDate").val()});
+						detail='<div id="warranty-'+countWarranty+'" class="alert-payment alert alert-danger alert-dismissible fade in " role="alert">'+closeButton+'<strong>Garantía</strong><br/> Observaciones: '+$("#warrantyObservation").val()+', Valor: '+$("#warrantyValue").val()+', Fecha: '+$("#warrantyDate").val()+'</div>';
+						paymentArray.push({type:"warranty", id: countWarranty, alert: "warranty-"+countWarranty, observation: $("#warrantyObservation").val(), value: $("#warrantyValue").val(), date: $("#warrantyDate").val()});
 						countWarranty++;
 						calculate();
 						$("#warrantyObservation").val(''); 
@@ -194,6 +204,52 @@ $totalAgreements = 22000;
 				}
 
 				$("#paymentDetail").append(detail);
+				$(function() {
+					$(".alert").click(function(event) {
+						var id = $(this).get(0).id;
+						var paymentDetail = getObjects(paymentArray, 'alert', id);
+						if(paymentDetail[0] !== undefined){
+							var type = paymentDetail[0].type;
+							$("#cashValue").val(paymentDetail[0].value);
+							$("#cashTicket").val(paymentDetail[0].ticket);
+							switch (type) {
+								case "cash":
+									$("#cashValue").val(paymentDetail[0].value);
+									$("#cashTicket").val(paymentDetail[0].ticket);
+									$("#cashValue").prop("disabled",false);
+									$("#cashTicket").prop("disabled",false);
+									$("#cashButton").prop("disabled",false);
+									break;
+								case "bonus":
+									$("#bonusTicket").val(paymentDetail[0].ticket);
+									$("#bonusValue").val(paymentDetail[0].value);
+									$("#bonusValueCo").val(paymentDetail[0].covalue);
+									break;
+								case "debit":
+									$("#debitTicket").val(paymentDetail[0].ticket); 
+									$("#debitValue").val(paymentDetail[0].value); 
+									$("#debitUser").val(paymentDetail[0].user);
+									break;
+								case "credit":
+									$("#creditTicket").val(paymentDetail[0].ticket); 
+									$("#creditValue").val(paymentDetail[0].value); 
+									$("#creditUser").val(paymentDetail[0].user);
+									break;
+								case "warranty":
+									$("#warrantyObservation").val(paymentDetail[0].observation); 
+									$("#warrantyValue").val(paymentDetail[0].value); 
+									$("#warrantyDate").val(paymentDetail[0].date);
+									break;
+								case "cheque":
+									$("#chequeTicket").val(paymentDetail[0].ticket); 
+									$("#chequeValue").val(paymentDetail[0].value);  
+									$("#chequeUser").val(paymentDetail[0].user);
+									break;
+							}
+							updatePayment(this, "cash");
+						}
+					});
+				});
 			}
 
 			function deletePayment(payment,type){
@@ -209,6 +265,23 @@ $totalAgreements = 22000;
 						break;
 					}
 				}
+				calculate();
+			}
+
+			function updatePayment(payment,type){
+				if(type=='cash'){
+					$("#cashValue").removeAttr('disabled');
+					$("#cashTicket").removeAttr('disabled');
+					$("#cashButton").removeAttr('disabled');
+				}
+				var paymentId = payment.id.split('-');
+				for(i=0;i<paymentArray.length;i++){
+					if(paymentArray[i].type==paymentId[0] && paymentArray[i].id==paymentId[1]){
+						paymentArray.splice(i,1);
+						break;
+					}
+				}
+				$("#"+payment.id).remove();
 				calculate();
 			}
 
