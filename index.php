@@ -25,7 +25,8 @@ $totalAgreements = 22000;
 				detailCalendar(calendar);
 				$('#paymentSelect a').click(function (e) {
 					resetClass();
-					e.preventDefault()
+					e.preventDefault();
+					console.log($(this));
 					$(this).tab('show')
 				});
 				
@@ -210,10 +211,9 @@ $totalAgreements = 22000;
 						var paymentDetail = getObjects(paymentArray, 'alert', id);
 						if(paymentDetail[0] !== undefined){
 							var type = paymentDetail[0].type;
-							$("#cashValue").val(paymentDetail[0].value);
-							$("#cashTicket").val(paymentDetail[0].ticket);
 							switch (type) {
 								case "cash":
+									$('#cash-tab a').tab('show');
 									$("#cashValue").val(paymentDetail[0].value);
 									$("#cashTicket").val(paymentDetail[0].ticket);
 									$("#cashValue").prop("disabled",false);
@@ -221,26 +221,31 @@ $totalAgreements = 22000;
 									$("#cashButton").prop("disabled",false);
 									break;
 								case "bonus":
+									$('#bonus-tab a').tab('show');
 									$("#bonusTicket").val(paymentDetail[0].ticket);
 									$("#bonusValue").val(paymentDetail[0].value);
 									$("#bonusValueCo").val(paymentDetail[0].covalue);
 									break;
 								case "debit":
+									$('#debit-tab a').tab('show');
 									$("#debitTicket").val(paymentDetail[0].ticket); 
 									$("#debitValue").val(paymentDetail[0].value); 
 									$("#debitUser").val(paymentDetail[0].user);
 									break;
 								case "credit":
+									$('#credit-tab a').tab('show');
 									$("#creditTicket").val(paymentDetail[0].ticket); 
 									$("#creditValue").val(paymentDetail[0].value); 
 									$("#creditUser").val(paymentDetail[0].user);
 									break;
 								case "warranty":
+									$('#warranty-tab a').tab('show');
 									$("#warrantyObservation").val(paymentDetail[0].observation); 
 									$("#warrantyValue").val(paymentDetail[0].value); 
 									$("#warrantyDate").val(paymentDetail[0].date);
 									break;
 								case "cheque":
+									$('#cheque-tab a').tab('show');
 									$("#chequeTicket").val(paymentDetail[0].ticket); 
 									$("#chequeValue").val(paymentDetail[0].value);  
 									$("#chequeUser").val(paymentDetail[0].user);
@@ -396,12 +401,12 @@ $totalAgreements = 22000;
 						<div class="panel-heading ">Información de Pago</div>
 						<div class="panel-body">
 							<ul id="paymentSelect" class="nav nav-tabs nav-justified">
-								<li role="presentation" class="active"><a href="#cash" role="tab" id="cash-tab" data-toggle="tab" aria-controls="cash" aria-expanded="true"><span class="fa fa-money"></span>&nbsp;Efectivo</a></li>
-								<li role="presentation"><a href="#bonus"><span class="fa fa-list-alt"></span>&nbsp;Bono</a></li>
-								<li role="presentation"><a href="#credit"><span class="fa fa-credit-card"></span>&nbsp;Crédito</a></li>
-								<li role="presentation"><a href="#debit"><span class="glyphicon glyphicon-credit-card"></span>&nbsp;Débito</a></li>
-								<li role="presentation"><a href="#cheque"><span class="fa fa-ticket"></span>&nbsp;Cheque</a></li>
-								<li role="presentation"><a href="#warranty"><span class="glyphicon glyphicon-transfer"></span>&nbsp;Garantía</a></li>
+								<li id="cash-tab" role="presentation" class="active tabs"><a href="#cash" role="tab" data-toggle="tab" aria-controls="cash" aria-expanded="true"><span class="fa fa-money"></span>&nbsp;Efectivo</a></li>
+								<li id="bonus-tab" role="presentation" class="tabs"><a href="#bonus"><span class="fa fa-list-alt"></span>&nbsp;Bono</a></li>
+								<li id="credit-tab" role="presentation" class="tabs"><a href="#credit"><span class="fa fa-credit-card"></span>&nbsp;Crédito</a></li>
+								<li id="debit-tab" role="presentation" class="tabs"><a href="#debit"><span class="glyphicon glyphicon-credit-card"></span>&nbsp;Débito</a></li>
+								<li id="cheque-tab" role="presentation" class="tabs"><a href="#cheque"><span class="fa fa-ticket"></span>&nbsp;Cheque</a></li>
+								<li id="warranty-tab" role="presentation" class="tabs"><a href="#warranty"><span class="glyphicon glyphicon-transfer"></span>&nbsp;Garantía</a></li>
 							</ul>
 							
 							<!--EFECTIVO-->
