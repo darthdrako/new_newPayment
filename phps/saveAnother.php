@@ -1,5 +1,10 @@
 <?
+include('../../../libs/db.class.php');
+
 session_start();
+
+$db = new DB();
+
 $calendar = $_REQUEST['calendar'];
 $type = $_REQUEST['type'];
 
@@ -9,6 +14,7 @@ if($type=='bonus'){
 	$effective = $_REQUEST['value'];
 	$copago = $_REQUEST['covalue'];
 	$sql = "INSERT INTO bono(calendar,effective,bonus_number,type,copago) VALUES($calendar,$effective,$bonus_number,'BONIFICACION',$copago)";
+	$db->doSql($sql);
 
 }elseif($type=='credit' || $type=='debit' || $type=='cheque'){
 	if($type=='credit' || $type=='debit') $type=$type.'o';

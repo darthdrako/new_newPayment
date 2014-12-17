@@ -1,8 +1,9 @@
 <?php
-
-//$calendar = $_REQUEST['calendar'];
-$calendar = 217141;
-$totalAgreements = 22000;
+session_start();
+$calendar = $_GET['calendar'];
+$totalAgreements = $_GET['total'];
+$json_string = stripslashes(utf8_encode($_REQUEST['agreement']));
+$agreement = $json_string;
 ?>
 
 <html>
@@ -15,18 +16,30 @@ $totalAgreements = 22000;
 		<script type="text/javascript" src="js/datepicker/js/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
 		<link href="js/datepicker/css/datepicker.css" rel="stylesheet">
 		<link href="js/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet">
+		<style type="text/css">
+			.popover{
+			    max-width: 100%;
+			}
+		</style>
 		<script>
 			var countCash = 0, countBonus = 0,countCredit = 0,countDebit = 0,countCheque = 0,countWarranty = 0;
 			var paymentArray = [];
 			var calendar = '<?php echo $calendar; ?>';
-
+			var totalAgreements = '<?php echo $totalAgreements; ?>';
+			var agreement = '<?php echo $agreement; ?>';
 			$(document).ready(function() {
-				
+
+				$.post('phps/review.php', {calendar: calendar}, function(data, textStatus, xhr) {
+					if(data>0){
+						alert("Agendamiento ya pagado - Éxito");
+						window.parent.close_frame_pay();
+					}
+				});
+
 				detailCalendar(calendar);
 				$('#paymentSelect a').click(function (e) {
 					resetClass();
 					e.preventDefault();
-					console.log($(this));
 					$(this).tab('show')
 				});
 				
@@ -52,7 +65,7 @@ $totalAgreements = 22000;
 				});
 
 			});
-			function getObjects(obj, key, val) {
+			function getObjects(obj, key, val) { //Busca coincidencias en un arreglo y devuelve un nuevo arreglo con resultados
 				var objects = [];
 				for (var i in obj) {
 					if (!obj.hasOwnProperty(i)) continue;
@@ -66,13 +79,13 @@ $totalAgreements = 22000;
 			}
 			function detailCalendar (calendar) {
 				var html = '';
-				var totalAgreements = '<?php echo $totalAgreements; ?>';
+				agreement = $.parseJSON(agreement);
 				var popoverTable = '';
 
 				$.post('phps/detailCalendar.php', {calendar: calendar}, function(data, textStatus, xhr) {
-					for (var i = 0; i < data.exams.length; i++) {
-						if( i == 0 ) popoverTable += ''+(i+1)+'.- '+data.exams[i].name+'';
-						else popoverTable += '<br>'+(i+1)+'.- '+data.exams[i].name+'';
+					for (var i = 0; i < agreement.length; i++) {
+						if( i == 0 ) popoverTable += ''+(i+1)+'.- Examen: '+agreement[i].name+' -  Convenio: '+agreement[i].Convenio+' '+agreement[i].Valor;
+						else popoverTable += '<br>'+(i+1)+'.- Examen: '+agreement[i].name+' -  Convenio: '+agreement[i].Convenio+' '+agreement[i].Valor;
 					};
 					html += '<td>'+data.paciente+'</td>';
 					html += '<td>'+data.date+'</td>';
@@ -120,13 +133,8 @@ $totalAgreements = 22000;
 						$("#cashButton").prop("disabled",true);
 
 					}else{
-						/*$.each($("#cash :input"), function(index, val) {
-							//has-error has-feedback
-							 console.log(val);
-						});*/
 						if($("#cashTicket").val()=='') $('#cashTicketDiv').addClass('has-error has-feedback');
 						if($("#cashValue").val()=='') $('#cashValueDiv').addClass('has-error has-feedback');
-						//$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="bonus"){
@@ -142,18 +150,18 @@ $totalAgreements = 22000;
 						if($("#bonusTicket").val()=='') $('#bonusTicketDiv').addClass('has-error has-feedback');
 						if($("#bonusValue").val()=='') $('#bonusValueDiv').addClass('has-error has-feedback');
 						if($("#bonusValueCo").val()=='') $('#bonusValueCoDiv').addClass('has-error has-feedback');
-						//$("#modalEmpty").modal('show');
 					}
 
 				}else if(type=="credit"){
 					if($("#creditTicket").val()!='' && $("#creditValue").val()!='' && $("#creditUser").val()!=''){
 						detail='<div id="credit-'+countCredit+'" class="alert-payment alert alert-info alert-dismissible fade in" role="alert">'+closeButton+'<strong>Crédito</strong><br/> Emisor: '+$("#creditUser").val()+', Nº de Transacción: '+$("#creditTicket").val()+', Valor: '+$("#creditValue").val()+'</div>';
-						paymentArray.push({type:"credit", id: countCredit, alert: "credit-"+countCredit, ticket: $("#creditTicket").val(), value: $("#creditValue").val(), user: $("#creditUser").val()});
+						paymentArray.push({type:"credit", id: countCredit, alert: "credit-"+countCredit, ticket: $("#creditTicket").val(), value: $("#creditValue").val(), user: $("#creditUser").val(), date: $('#creditDate').val(), bank: $('#creditBank').val()});
 						countCredit++;
 						calculate();
 						$("#creditTicket").val(''); 
 						$("#creditValue").val(''); 
-						$("#creditUser").val(''); 
+						$("#creditUser").val('');
+						$("#creditBank").val(''); 
 					}else{
 						if($("#creditTicket").val()=='') $('#creditTicketDiv').addClass('has-error has-feedback');
 						if($("#creditValue").val()=='') $('#creditValueDiv').addClass('has-error has-feedback');
@@ -163,12 +171,13 @@ $totalAgreements = 22000;
 				}else if(type=="debit"){
 					if($("#debitTicket").val()!='' && $("#debitValue").val()!='' && $("#debitUser").val()!=''){
 						detail='<div id="debit-'+countDebit+'" class="alert-payment alert alert-warning alert-dismissible fade in" role="alert">'+closeButton+'<strong>Débito</strong><br/> Emisor: '+$("#debitUser").val()+', Nº de Transacción: '+$("#debitTicket").val()+', Valor: '+$("#debitValue").val()+'</div>';
-						paymentArray.push({type:"debit", id: countDebit, alert: "debit-"+countDebit, ticket: $("#debitTicket").val(), value: $("#debitValue").val(), user: $("#debitUser").val()});
+						paymentArray.push({type:"debit", id: countDebit, alert: "debit-"+countDebit, ticket: $("#debitTicket").val(), value: $("#debitValue").val(), user: $("#debitUser").val(), date: $('#debitDate').val(), bank: $('#debitBank').val()});
 						countDebit++;
 						calculate();
 						$("#debitTicket").val(''); 
 						$("#debitValue").val(''); 
-						$("#debitUser").val(''); 
+						$("#debitUser").val('');
+						$("#debitBank").val(''); 
 					}else{
 						if($("#debitTicket").val()=='') $('#debitTicketDiv').addClass('has-error has-feedback');
 						if($("#debitValue").val()=='') $('#debitValueDiv').addClass('has-error has-feedback');
@@ -178,12 +187,13 @@ $totalAgreements = 22000;
 				}else if(type=="cheque"){
 					if($("#chequeTicket").val()!='' && $("#chequeValue").val()!='' && $("#chequeUser").val()!=''){
 						detail='<div id="cheque-'+countCheque+'" class="alert-payment alert alert-warning alert-dismissible fade in" role="alert">'+closeButton+'<strong>Cheque</strong><br/> Emisor: '+$("#chequeUser").val()+', Nº de Transacción: '+$("#chequeTicket").val()+', Valor: '+$("#chequeValue").val()+'</div>';
-						paymentArray.push({type:"cheque", id: countCheque, alert: "cheque-"+countCheque, ticket: $("#chequeTicket").val(), value: $("#chequeValue").val(), user: $("#chequeUser").val()});
+						paymentArray.push({type:"cheque", id: countCheque, alert: "cheque-"+countCheque, ticket: $("#chequeTicket").val(), value: $("#chequeValue").val(), user: $("#chequeUser").val(), date: $('#chequeDate').val(), bank: $('#chequeBank').val()});
 						countCheque++;
 						calculate();
 						$("#chequeTicket").val(''); 
 						$("#chequeValue").val('');  
-						$("#chequeUser").val(''); 
+						$("#chequeUser").val('');
+						$("#chequeBank").val('');
 					}else{
 						if($("#chequeTicket").val()=='') $('#chequeTicketDiv').addClass('has-error has-feedback');
 						if($("#chequeValue").val()=='') $('#chequeValueDiv').addClass('has-error has-feedback');
@@ -231,12 +241,16 @@ $totalAgreements = 22000;
 									$("#debitTicket").val(paymentDetail[0].ticket); 
 									$("#debitValue").val(paymentDetail[0].value); 
 									$("#debitUser").val(paymentDetail[0].user);
+									$("#debitDate").val(paymentDetail[0].date);
+									$("#debitBank").val(paymentDetail[0].bank);
 									break;
 								case "credit":
 									$('#credit-tab a').tab('show');
 									$("#creditTicket").val(paymentDetail[0].ticket); 
 									$("#creditValue").val(paymentDetail[0].value); 
 									$("#creditUser").val(paymentDetail[0].user);
+									$("#creditDate").val(paymentDetail[0].date);
+									$("#creditBank").val(paymentDetail[0].bank);
 									break;
 								case "warranty":
 									$('#warranty-tab a').tab('show');
@@ -249,6 +263,8 @@ $totalAgreements = 22000;
 									$("#chequeTicket").val(paymentDetail[0].ticket); 
 									$("#chequeValue").val(paymentDetail[0].value);  
 									$("#chequeUser").val(paymentDetail[0].user);
+									$("#chequeDate").val(paymentDetail[0].date);
+									$("#chequeBank").val(paymentDetail[0].bank);
 									break;
 							}
 							updatePayment(this, "cash");
@@ -331,6 +347,19 @@ $totalAgreements = 22000;
 						
 				if($("#toPay").html()==$("#total").html()){
 					
+					var exams='', agreements='', agreements_value='',payment_type='PARTICULAR';
+					for(k=0;k<agreement.length;k++){
+						if(k!=0){
+							exams+='-';
+							agreements+='-';
+							agreements_value+='-';
+						}
+						exams += agreement[k].id;
+						agreements += agreement[k].agreement;
+						agreements_value += agreement[k].Valor;
+						if(agreement[k].Convenio!='PARTICULAR') payment_type='BONIFICACION';
+					}
+
 					if(paymentArray.length>0){
 						for(i=0;i<paymentArray.length;i++){
 							if(paymentArray[i].type=='cash'){
@@ -338,21 +367,28 @@ $totalAgreements = 22000;
 								ticketValue=paymentArray[i].value;
 							}
 						}
-						$.post('phps/savePayment.php', {calendar: calendar, cash: ticketValue, code_ticket: ticket}, function(data, textStatus, xhr) {
-							console.log(data);
+						$.post('phps/savePayment.php', {calendar: calendar, cash: ticketValue, code_ticket: ticket, payment_type: payment_type, exams: exams, agreements: agreements, agreements_value: agreements_value}, function(data, textStatus, xhr) {
 						});
 
 						for(j=0;j<paymentArray.length;j++){
 							if(paymentArray[j].type!='cash'){
 								paymentArray[j].calendar=calendar;
-								$.post('phps/saveAnother.php', paymentArray[j] /*agregar calendar*/, function(data, textStatus, xhr) {
-									console.log(data);
+								$.post('phps/saveAnother.php', paymentArray[j], function(data, textStatus, xhr) {
 								});
 							}
 						}
 					}
 
-					alert("Pagando...");
+					window.parent.changeColor(calendar,"yellow","pagado");
+
+					if(confirm("Desea dejar al paciente en espera?")){
+				        $.post("../newpayment/changeState.php",{cal: calendar},function(){
+				        });
+						window.parent.changeColor(calendar,"red","en espera");
+						window.parent.close_frame_pay();
+					}
+					window.parent.close_frame_pay();
+
 				}else{
 					alert("Epa! Paga poh', gilculeco");
 				}

@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 session_start();
 $calendar = $_POST['calendar'];
-$dbconn = pg_connect("host=192.168.0.210 port=5432 dbname=es14b_hrt2 user=postgres password=justgoon") or die('NO HAY CONEXION: ' . pg_last_error());
+$dbconn = pg_connect("host=localhost port=5432 dbname=bioris user=postgres password=justgoon") or die('NO HAY CONEXION: ' . pg_last_error());
 $query = "SELECT exam.name, exam.id  FROM calendar_exam LEFT JOIN exam ON exam.id=calendar_exam.exam WHERE calendar=$calendar";
 $result = pg_query($query) or die("SQL Error 1: " . pg_last_error());
 while ($row = pg_fetch_array($result, null, PGSQL_ASSOC)) {
